@@ -9,9 +9,9 @@ export async function compressImg(request, reply, input) {
     const format = request.params.webp ? 'webp' : 'jpeg';
     
     input.body.pipe(sharpStream()
-    .grayscale(req.params.grayscale)
+    .grayscale(request.params.grayscale)
     .toFormat(format, {
-      quality: req.params.quality,
+      quality: request.params.quality,
       progressive: true,
       optimizeScans: true
     })
@@ -21,7 +21,7 @@ export async function compressImg(request, reply, input) {
 function _sendResponse(err, output, info, format, req, res) {
   if (err || !info) return redirect(requedt, reply);
 
-  reply
+       reply
             .header('content-type', 'image/' + format)
             .header('content-length', info.size)
             .header('x-original-size', request.params.originSize)
