@@ -27,5 +27,5 @@ function _sendResponse(err, output, info, format, request, reply) {
             .header('x-original-size', request.params.originSize)
             .header('x-bytes-saved', request.params.originSize - info.size)
             .code(200)
-            .send(data);
+            .send(output);
 }
