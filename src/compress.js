@@ -18,8 +18,8 @@ export async function compressImg(request, reply, input) {
     .toBuffer((err, output, info) => _sendResponse(err, output, info, format, request, reply)))
 }
 
-function _sendResponse(err, output, info, format, req, res) {
-  if (err || !info) return redirect(requedt, reply);
+function _sendResponse(err, output, info, format, request, reply) {
+  if (err || !info) return redirect(request, reply);
 
        reply
             .header('content-type', 'image/' + format)
