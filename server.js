@@ -5,12 +5,18 @@ import fastify from 'fastify';
 import { processRequest } from './src/proxy.js'; // Import the named export
 
 const app = fastify({ 
-  logger: false // Reduced logging level for performance
+  logger: true // Reduced logging level for performance
+          // Enable trust proxy for reverse proxies
 });
 
 const PORT = process.env.PORT || 8080;
 
-// Route directly linked to processRequest
+// Favicon route for status 204
+app.get('/favicon.ico', async (request, reply) => {
+  reply.code(204).send(); // Send a 204 No Content response for the favicon
+});
+
+// Main route directly linked to processRequest
 app.get('/', processRequest);
 
 // Start the server
