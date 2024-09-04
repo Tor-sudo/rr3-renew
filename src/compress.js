@@ -15,8 +15,8 @@ export async function compressImg(request, reply, input) {
             .toFormat(format, {
                 quality: request.params.quality,
                 progressive: true,
-                optimizeScans: webp, // Optimize scans only for WebP
-                chromaSubsampling: webp ? '4:4:4' : '4:2:0', // Conditional chroma subsampling
+                optimizeScans: request.params.webp, // Optimize scans only for WebP
+                chromaSubsampling: request.params.webp ? '4:4:4' : '4:2:0', // Con
             });
 
         // Pipe the input stream into the Sharp instance and convert it to a buffer
