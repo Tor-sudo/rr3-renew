@@ -47,27 +47,23 @@ export async function processRequest(request, reply) {
     const userAgent = randomUserAgent();
 
     try {
-        const response = await axios({
-            method: 'get',
-            url: request.params.url,
-            responseType: 'stream',
+        const response = await axios.get(request.params.url, {
             headers: {
                 ...lodash.pick(request.headers, ['cookie', 'dnt', 'referer']),
                 'user-agent': userAgent,
                 'x-forwarded-for': randomIP,
                 'via': randomVia(),
             },
+            responseType: 'stream', // We need to handle the response as a stream
             timeout: 10000,
-            maxRedirects: 5,
+            maxRedirects: 5, // max redirects
             validateStatus: function (status) {
                 return status === 200; // Only accept status 200 as valid
             },
         });
 
-       
-
-        // Copy headers to the reply
-        copyHdrs(response, reply);
+        // We only reach here if the status code is exactly 200
+        copyHdrs(response, reply);  // Copy headers from response to reply
         reply.header('content-encoding', 'identity');
         request.params.originType = response.headers['content-type'] || '';
         request.params.originSize = parseInt(response.headers['content-length'], 10) || 0;
@@ -80,6 +76,7 @@ export async function processRequest(request, reply) {
             return performBypass(request, reply, response.data);
         }
     } catch (err) {
+        // Handle non-200 responses or other errors
         return handleRedirect(request, reply);
     }
 }
