@@ -30,6 +30,7 @@ export async function compressImg(request, reply, input) {
             .code(200)
             .send(data);
     } catch (error) {
+        // In case of an error, redirect the request
         return redirect(request, reply);
     }
 }
