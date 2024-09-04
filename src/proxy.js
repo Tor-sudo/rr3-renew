@@ -69,8 +69,8 @@ export async function processRequest(request, reply) {
         // Copy headers to the reply
         copyHdrs(response, reply);
         reply.header('content-encoding', 'identity');
-        request.params.originType = response.headers['content-type'] || '';
-        request.params.originSize = parseInt(response.headers['content-length'], 10) || 0;
+        request.params.originType = response.headers.get['content-type'] || '';
+        request.params.originSize = parseInt(response.headers.get['content-length'], 10) || 0;
 
         const input = { body: response.data }; // Pass the stream
 
@@ -80,7 +80,6 @@ export async function processRequest(request, reply) {
             return performBypass(request, reply, response.data);
         }
     } catch (err) {
-        console.error('Error processing the request:', err.message);
         return handleRedirect(request, reply);
     }
 }
