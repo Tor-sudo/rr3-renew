@@ -1,5 +1,5 @@
 "use strict";
-import fetch from 'node-fetch';
+import axios from 'axios';
 import lodash from 'lodash';
 import { generateRandomIP, randomUserAgent } from './utils.js';
 import { copyHeaders as copyHdrs } from './copyHeaders.js';
@@ -38,7 +38,6 @@ export async function processRequest(request, reply) {
         return reply.send(`bandwidth-hero-proxy`);
     }
 
-
     request.params.url = decodeURIComponent(url);
     request.params.webp = !request.query.jpeg;
     request.params.grayscale = request.query.bw != '0';
@@ -48,34 +47,33 @@ export async function processRequest(request, reply) {
     const userAgent = randomUserAgent();
 
     try {
-        const response = await fetch(request.params.url, {
-            method: "GET",
+        const response = await axios.get(request.params.url, {
             headers: {
                 ...lodash.pick(request.headers, ['cookie', 'dnt', 'referer']),
                 'user-agent': userAgent,
                 'x-forwarded-for': randomIP,
                 'via': randomVia(),
             },
+            responseType: 'stream', // We need to handle the response as a stream
             timeout: 10000,
-            follow: 5, // max redirects
-            compress: false,
+            maxRedirects: 5, // max redirects
         });
 
-        if (!response.ok) {
+        if (response.status !== 200) {
             return handleRedirect(request, reply);
         }
 
-        copyHdrs(response, reply);
+        copyHdrs(response, reply);  // Copy headers from response to reply
         reply.header('content-encoding', 'identity');
-        request.params.originType = response.headers.get('content-type') || '';
-        request.params.originSize = response.headers.get('content-length'), 10 || 0;
+        request.params.originType = response.headers['content-type'] || '';
+        request.params.originSize = parseInt(response.headers['content-length'], 10) || 0;
 
-        const input = { body: response.body }; // Wrap the stream in an object
+        const input = { body: response.data }; // Pass the stream
 
         if (checkCompression(request)) {
             return applyCompression(request, reply, input);
         } else {
-            return performBypass(request, reply, response.body);
+            return performBypass(request, reply, response.data);
         }
     } catch (err) {
         return handleRedirect(request, reply);
