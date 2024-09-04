@@ -11,10 +11,7 @@ const app = fastify({
 
 const PORT = process.env.PORT || 8080;
 
-// Favicon route for status 204
-app.get('/favicon.ico', async (request, reply) => {
-  reply.code(204).send(); // Send a 204 No Content response for the favicon
-});
+
 
 // Main route directly linked to processRequest
 app.get('/', processRequest);
