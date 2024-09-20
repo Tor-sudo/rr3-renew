@@ -11,20 +11,5 @@ const app = fastify({
 
 const PORT = process.env.PORT || 8080;
 
-
-
-// Main route directly linked to processRequest
 app.get('/', processRequest);
-
-// Start the server
-const start = async () => {
-  try {
-    await app.listen({ host: '0.0.0.0', port: PORT });
-    console.log(`Server listening on port ${PORT}`);
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();
+app.listen({host: '0.0.0.0', port: PORT });
