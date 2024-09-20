@@ -57,6 +57,7 @@ export async function processRequest(request, reply) {
             responseType: 'stream', // We need to handle the response as a stream
             timeout: 10000,
             maxRedirects: 5, // max redirects
+            decompress: false,
             validateStatus: function (status) {
                 return status === 200; // Only accept status 200 as valid
             },
