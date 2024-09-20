@@ -2,21 +2,17 @@
 import sharp from 'sharp';
 import { redirect } from './redirect.js';
 
-// Define the sharpStream function
-const sharpStream = () => sharp({ animated: false, unlimited: true });
-
 export async function compressImg(request, reply, input) {
-    const format = request.params.webp ? 'webp' : 'jpeg';
+    const format = request.params.webp ? 'webp' : 'jpeg'
 
     try {
-        // Create the Sharp instance with the specified options
-        const sharpInstance = sharpStream()
+        const sharpInstance = sharp()
             .grayscale(request.params.grayscale)
             .toFormat(format, {
                 quality: request.params.quality,
                 progressive: true,
-                optimizeScans: request.params.webp, // Optimize scans only for WebP
-                chromaSubsampling: request.params.webp ? '4:4:4' : '4:2:0', // Con
+                optimizeScans: true,
+                smartSubsample: false
             });
 
         // Pipe the input stream into the Sharp instance and convert it to a buffer
@@ -24,7 +20,6 @@ export async function compressImg(request, reply, input) {
             .pipe(sharpInstance)
             .toBuffer({ resolveWithObject: true });
 
-        // Send the processed image as the response
         reply
             .header('content-type', 'image/' + format)
             .header('content-length', info.size)
@@ -33,7 +28,6 @@ export async function compressImg(request, reply, input) {
             .code(200)
             .send(data);
     } catch (error) {
-        console.error('Error during image compression:', error.message);
         return redirect(request, reply);
     }
 }
