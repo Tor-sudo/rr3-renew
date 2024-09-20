@@ -54,7 +54,7 @@ export async function processRequest(request, reply) {
                 'via': randomVia(),
             },
             responseType: 'stream', // We need to handle the response as a stream
-            timeout: 1000,
+            timeout: 10000,
             maxRedirects: 3,// max redirects
             decompress: false,
             validateStatus: function (status) {
