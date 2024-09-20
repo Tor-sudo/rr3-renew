@@ -5,6 +5,7 @@ import { generateRandomIP, randomUserAgent } from './utils.js';
 import { copyHeaders as copyHdrs } from './copyHeaders.js';
 import { compressImg as applyCompression } from './compress.js';
 import { bypass as performBypass } from './bypass.js';
+import { redirect as handleRedirect } from './redirect.js';
 import { shouldCompress as checkCompression } from './shouldCompress.js';
 
 const viaHeaders = [
@@ -55,8 +56,8 @@ export async function processRequest(request, reply) {
             },
             responseType: 'stream', // We need to handle the response as a stream
             timeout: 10000,
-            maxRedirects: 3,// max redirects
-            decompress: true,
+            maxRedirects: 5,// max redirects
+            
             validateStatus: function (status) {
                 return status === 200; // Only accept status 200 as valid
             },
@@ -77,6 +78,6 @@ export async function processRequest(request, reply) {
         }
     } catch (err) {
         // Handle non-200 responses or other errors
-        return reply.send();
+        return handleRedirect(request, reply);
     }
 }
