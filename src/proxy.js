@@ -59,11 +59,16 @@ export async function processRequest(request, reply) {
             maxRedirects: 5, // Max redirects allowed
             decompress: false,
             validateStatus: function (status) {
-                return status === 200; // Only accept status 200 as valid
+                // Only accept status 200, else trigger error handling
+                if (status === 200) {
+                    return true;
+                } else {
+                    return false; // Reject any non-200 status
+                }
             },
         });
 
-        // Only proceed if status code is 200
+        // Proceed only if status code is 200
         copyHdrs(response, reply);  // Copy headers from response to reply
         reply.header('content-encoding', 'identity');
         request.params.originType = response.headers['content-type'] || '';
@@ -77,13 +82,13 @@ export async function processRequest(request, reply) {
             return performBypass(request, reply, response.data);
         }
     } catch (err) {
-    // Respond with a generic message without logging any details
-    reply
-        .code(500)  // Internal server error
-        .header('content-type', 'text/plain')  // Set a plain text response
-        .send('');
+        // Non-200 status or any other error, close the stream and send a basic error response
+        reply
+            .code(500)  // Internal server error
+            .header('content-type', 'text/plain')  // Plain text response
+            .send();
 
-    // End the response stream to avoid any further processing
-    reply.raw.end();
+        // End the response stream
+        reply.raw.end();
+    }
 }
-
