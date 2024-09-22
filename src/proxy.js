@@ -77,13 +77,13 @@ export async function processRequest(request, reply) {
             return performBypass(request, reply, response.data);
         }
     } catch (err) {
-        // Handle non-200 responses or errors
-        reply
-            .code(500)  // Respond with internal server error code
-            .header('content-type', 'application/json')
-            .send({ error: 'Failed to process the request', details: err.message });
+    // Respond with a generic message without logging any details
+    reply
+        .code(500)  // Internal server error
+        .header('content-type', 'text/plain')  // Set a plain text response
+        .send('');
 
-        // End the response stream
-        reply.raw.end();
-    }
+    // End the response stream to avoid any further processing
+    reply.raw.end();
 }
+
