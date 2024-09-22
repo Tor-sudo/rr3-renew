@@ -54,16 +54,16 @@ export async function processRequest(request, reply) {
                 'x-forwarded-for': randomIP,
                 'via': randomVia(),
             },
-            responseType: 'stream', // We need to handle the response as a stream
+            responseType: 'stream', // Handle response as a stream
             timeout: 10000,
-            maxRedirects: 5,// max redirects
+            maxRedirects: 5, // Max redirects allowed
             decompress: false,
             validateStatus: function (status) {
                 return status === 200; // Only accept status 200 as valid
             },
         });
 
-        // We only reach here if the status code is exactly 200
+        // Only proceed if status code is 200
         copyHdrs(response, reply);  // Copy headers from response to reply
         reply.header('content-encoding', 'identity');
         request.params.originType = response.headers['content-type'] || '';
@@ -77,7 +77,13 @@ export async function processRequest(request, reply) {
             return performBypass(request, reply, response.data);
         }
     } catch (err) {
-        // Handle non-200 responses or other errors
-        return handleRedirect(request, reply);
+        // Handle non-200 responses or errors
+        reply
+            .code(500)  // Respond with internal server error code
+            .header('content-type', 'application/json')
+            .send({ error: 'Failed to process the request', details: err.message });
+
+        // End the response stream
+        reply.raw.end();
     }
 }
