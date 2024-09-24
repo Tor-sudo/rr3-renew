@@ -30,10 +30,8 @@ export async function compressImg(request, reply, input) {
         // Non-200 status or any other error, close the stream and send a basic error response
         reply
             .code(500)  // Internal server error
-            .header('content-type', 'text/plain')  // Plain text response
             .send();
 
         // End the response stream
         reply.raw.end();
     }
-}
