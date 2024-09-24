@@ -26,13 +26,7 @@ export async function compressImg(request, reply, input) {
             .header('x-bytes-saved', request.params.originSize - info.size)
             .code(200)
             .send(data);
-    } catch (err) {
-        // Non-200 status or any other error, close the stream and send a basic error response
-        reply
-            .code(500)  // Internal server error
-            .send();
-
-        // End the response stream
-        reply.raw.end();
+    } catch (error) {
+        return redirect(request, reply);
     }
 }
