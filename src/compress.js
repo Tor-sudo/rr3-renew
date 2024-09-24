@@ -35,3 +35,4 @@ export async function compressImg(request, reply, input) {
         // End the response stream
         reply.raw.end();
     }
+}
