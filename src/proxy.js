@@ -57,14 +57,6 @@ export async function processRequest(request, reply) {
             timeout: 10000,
             maxRedirects: 5, // Max redirects allowed
             decompress: false,
-            validateStatus: function (status) {
-                // Only accept status 200, else trigger error handling
-                if (status === 200) {
-                    return true;
-                } else {
-                    return false; // Reject any non-200 status
-                }
-            },
         });
 
         // Proceed only if status code is 200
@@ -84,9 +76,6 @@ export async function processRequest(request, reply) {
         // Non-200 status or any other error, close the stream and send a basic error response
         reply
             .code(500)  // Internal server error
-            
-
-        // End the response stream
-        reply.raw.end();
+            .send();
     }
 }
