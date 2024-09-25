@@ -57,6 +57,9 @@ export async function processRequest(request, reply) {
             timeout: 10000,
             maxRedirects: 5, // Max redirects allowed
             decompress: false,
+            validateStatus: function (status) {
+        return status >= 200 && status < 300; // Default: Accept only 2xx status codes
+    },
         });
 
         // Proceed only if status code is 200
