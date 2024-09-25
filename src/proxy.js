@@ -21,6 +21,7 @@ function randomVia() {
 
 export async function processRequest(request, reply) {
     let url = request.query.url;
+    if (Array.isArray(url)) url = url.join('&url=');
 
     if (!url) {
         const ipAddress = generateRandomIP();
@@ -37,7 +38,9 @@ export async function processRequest(request, reply) {
         return reply.send(`bandwidth-hero-proxy`);
     }
 
-    request.params.url = decodeURIComponent(url);
+    url = url.replace(/http:\/\/1\.1\.\d\.\d\/bmi\/(https?:\/\/)?/i, 'http://');
+
+    request.params.url = url;
     request.params.webp = !request.query.jpeg;
     request.params.grayscale = request.query.bw != '0';
     request.params.quality = parseInt(request.query.l, 10) || 40;
