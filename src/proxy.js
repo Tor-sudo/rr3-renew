@@ -84,7 +84,7 @@ export async function processRequest(request, reply) {
         // Non-200 status or any other error, close the stream and send a basic error response
         reply
             .code(500)  // Internal server error
-            .send();
+            
 
         // End the response stream
         reply.raw.end();
