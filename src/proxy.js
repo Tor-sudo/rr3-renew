@@ -1,4 +1,4 @@
-Use http/2
+
 "use strict";
 import axios from 'axios';
 import lodash from 'lodash';
