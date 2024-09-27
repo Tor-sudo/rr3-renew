@@ -67,7 +67,8 @@ export async function processRequest(request, reply) {
                 return status >= 200 && status < 300; // Accept only 2xx status codes
             },
             httpAgent: new http2.Agent({   // Use HTTP/2 agent with keepAlive
-                keepAlive: true
+                keepAlive: true,
+                protocol: 'https:',
             }),
         });
 
