@@ -3,7 +3,6 @@
 
 import fastify from 'fastify';
 import { processRequest } from './src/proxy.js'; // Import the named export
-import http2 from 'http2';
 
 const app = fastify({ 
   logger: false, // Reduced logging level for performance
