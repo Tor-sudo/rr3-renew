@@ -1,4 +1,3 @@
-
 "use strict";
 import axios from 'axios';
 import lodash from 'lodash';
@@ -6,7 +5,6 @@ import { generateRandomIP, randomUserAgent } from './utils.js';
 import { copyHeaders as copyHdrs } from './copyHeaders.js';
 import { compressImg as applyCompression } from './compress.js';
 import { bypass as performBypass } from './bypass.js';
-import { redirect as handleRedirect } from './redirect.js';
 import { shouldCompress as checkCompression } from './shouldCompress.js';
 
 const viaHeaders = [
@@ -23,6 +21,7 @@ function randomVia() {
 
 export async function processRequest(request, reply) {
     let url = request.query.url;
+    if (Array.isArray(url)) url = url.join('&url=');
 
     if (!url) {
         const ipAddress = generateRandomIP();
@@ -39,7 +38,9 @@ export async function processRequest(request, reply) {
         return reply.send(`bandwidth-hero-proxy`);
     }
 
-    request.params.url = decodeURIComponent(url);
+    url = url.replace(/http:\/\/1\.1\.\d\.\d\/bmi\/(https?:\/\/)?/i, 'http://');
+
+    request.params.url = url;
     request.params.webp = !request.query.jpeg;
     request.params.grayscale = request.query.bw != '0';
     request.params.quality = parseInt(request.query.l, 10) || 40;
@@ -55,16 +56,16 @@ export async function processRequest(request, reply) {
                 'x-forwarded-for': randomIP,
                 'via': randomVia(),
             },
-            responseType: 'stream', // We need to handle the response as a stream
+            responseType: 'stream', // Handle response as a stream
             timeout: 10000,
-            maxRedirects: 5,// max redirects
+            maxRedirects: 5, // Max redirects allowed
             decompress: false,
             validateStatus: function (status) {
-                return status === 200; // Only accept status 200 as valid
-            },
+        return status >= 200 && status < 300; // Default: Accept only 2xx status codes
+    },
         });
 
-        // We only reach here if the status code is exactly 200
+        // Proceed only if status code is 200
         copyHdrs(response, reply);  // Copy headers from response to reply
         reply.header('content-encoding', 'identity');
         request.params.originType = response.headers['content-type'] || '';
@@ -78,7 +79,9 @@ export async function processRequest(request, reply) {
             return performBypass(request, reply, response.data);
         }
     } catch (err) {
-        // Handle non-200 responses or other errors
-        return handleRedirect(request, reply);
+        // Non-200 status or any other error, close the stream and send a basic error response
+        reply
+            .code(500)  // Internal server error
+            .send();
     }
 }
