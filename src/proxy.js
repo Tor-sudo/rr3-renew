@@ -50,9 +50,7 @@ export async function processRequest(request, reply) {
     const userAgent = randomUserAgent();
 
     try {
-        const response = await axios({
-            method: 'get',   // Explicitly use GET method
-            url: request.params.url,
+        const response = await axios.get({
             headers: {
                 ...lodash.pick(request.headers, ['cookie', 'dnt', 'referer']),
                 'user-agent': userAgent,
