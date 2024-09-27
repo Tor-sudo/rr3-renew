@@ -9,13 +9,13 @@
   },
   "dependencies": {
     "fastify": "^5.0.0",
+    "http2-wrapper": "2.2.1",
     "axios": "^1.7.7",
     "lodash": "^4.17.21",
     "sharp": "^0.33.5"
   },
   "engines": {
-    "node": "20.x",
-    "yarn": "1.x"
+    "node": "20.x"
   },
   "type": "module"
 }
