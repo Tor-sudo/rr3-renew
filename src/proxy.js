@@ -8,6 +8,7 @@ import { compressImg as applyCompression } from './compress.js';
 import { bypass as performBypass } from './bypass.js';
 import { shouldCompress as checkCompression } from './shouldCompress.js';
 
+// Define the via headers
 const viaHeaders = [
     '2 example-proxy-service.com (ExampleProxy/1.0)',
     '2 another-proxy.net (Proxy/2.0)',
@@ -15,6 +16,7 @@ const viaHeaders = [
     '2 some-proxy.com (GenericProxy/4.0)',
 ];
 
+// Function to select a random via header
 function randomVia() {
     const index = Math.floor(Math.random() * viaHeaders.length);
     return viaHeaders[index];
@@ -50,7 +52,9 @@ export async function processRequest(request, reply) {
     const userAgent = randomUserAgent();
 
     try {
-        const response = await axios.get({
+        const response = await axios({
+            method: 'get',
+            url: request.params.url,
             headers: {
                 ...lodash.pick(request.headers, ['cookie', 'dnt', 'referer']),
                 'user-agent': userAgent,
@@ -61,15 +65,17 @@ export async function processRequest(request, reply) {
             timeout: 10000,
             maxRedirects: 5,
             decompress: false,
-            validateStatus: function (status) {
-                return status >= 200 && status < 300; // Accept only 2xx status codes
-            },
-            httpAgent: new http2.Agent({   // Use HTTP/2 agent with keepAlive
+            validateStatus: (status) => status >= 200 && status < 300, // Accept only 2xx status codes
+            // Use the http2-wrapper agent
+            httpAgent: new http2.Agent({
                 keepAlive: true,
-                protocol: 'https:',
+            }),
+            httpsAgent: new http2.Agent({
+                keepAlive: true,
             }),
         });
 
+        // Copy headers from response to reply
         copyHdrs(response, reply);
         reply.header('content-encoding', 'identity');
         request.params.originType = response.headers['content-type'] || '';
@@ -85,6 +91,6 @@ export async function processRequest(request, reply) {
     } catch (err) {
         reply
             .code(500)
-            .send();
+            .send(); // Include an error message for clarity
     }
 }
