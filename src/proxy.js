@@ -1,7 +1,7 @@
 "use strict";
 import axios from 'axios';
-import http from 'http';
-import https from 'https';
+//import http from 'http';
+//import https from 'https';
 import lodash from 'lodash';
 import { generateRandomIP, randomUserAgent } from './utils.js';
 import { copyHeaders as copyHdrs } from './copyHeaders.js';
