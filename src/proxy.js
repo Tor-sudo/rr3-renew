@@ -1,5 +1,7 @@
 "use strict";
 import axios from 'axios';
+import http from 'http';
+import https from 'https';
 import lodash from 'lodash';
 import { generateRandomIP, randomUserAgent } from './utils.js';
 import { copyHeaders as copyHdrs } from './copyHeaders.js';
@@ -63,6 +65,8 @@ export async function processRequest(request, reply) {
             validateStatus: function (status) {
         return status >= 200 && status < 300; // Default: Accept only 2xx status codes
     },
+            httpAgent: new http.Agent({ keepAlive: true }),
+             httpsAgent: new https.Agent({ keepAlive: true }),
         });
 
         // Proceed only if status code is 200
