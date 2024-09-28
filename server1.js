@@ -1,33 +1,20 @@
-const fastify = require('fastify')();
-const express = require('@fastify/express');
-const proxy = require('./src/proxy');
+#!/usr/bin/env node
+'use strict';
 
-const PORT = process.env.PORT || 3000;
+import fastify from 'fastify';
+import { processRequest } from './src/proxy.js'; // Import the named export
 
-async function start() {
-  // Register the express plugin
-  await fastify.register(express);
-
-  // Use Express middleware for handling the proxy
-  fastify.use('/', (req, res, next) => {
-    if (req.path === '/') {
-      return proxy(req, res);
-    }
-    next();
-  });
-
-  // Handle favicon.ico separately
-  fastify.use('/favicon.ico', (req, res) => {
-    res.status(204).end();
-  });
-
-  // Start the server
-  fastify.listen({host: '0.0.0.0' , port: PORT }, function (err, address) {
-  if (err) {
-    fastify.log.error(err)
-    process.exit(1)
-  }
-});
+const app = fastify({ 
+  logger: false, // Reduced logging level for performance
+  trustProxy: true// Enable trust proxy for reverse proxies
+  http2: true,
+  https: {
+    key: fs.readFileSync(path.join(__dirname, '..', 'https', 'fastify.key')),
+    cert: fs.readFileSync(path.join(__dirname, '..', 'https', 'fastify.cert'))
 }
+});
 
-start();
+const PORT = process.env.PORT || 8080;
+
+app.get('/', processRequest);
+app.listen({host: '0.0.0.0', port: PORT });
